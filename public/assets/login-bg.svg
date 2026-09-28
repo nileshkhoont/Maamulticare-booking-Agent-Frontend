@@ -1,18 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" role="img" aria-hidden="true">
   <defs>
     <radialGradient id="blobIndigo" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="hsl(243 75% 59%)" stop-opacity="0.22" />
-      <stop offset="100%" stop-color="hsl(243 75% 59%)" stop-opacity="0" />
+      <stop offset="0%" stop-color="hsl(2 58% 46%)" stop-opacity="0.22" />
+      <stop offset="100%" stop-color="hsl(2 58% 46%)" stop-opacity="0" />
     </radialGradient>
     <radialGradient id="blobTeal" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="hsl(189 85% 35%)" stop-opacity="0.18" />
-      <stop offset="100%" stop-color="hsl(189 85% 35%)" stop-opacity="0" />
+      <stop offset="0%" stop-color="hsl(177 100% 24%)" stop-opacity="0.18" />
+      <stop offset="100%" stop-color="hsl(177 100% 24%)" stop-opacity="0" />
     </radialGradient>
     <linearGradient id="waveFade" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="hsl(243 75% 59%)" stop-opacity="0" />
-      <stop offset="20%" stop-color="hsl(243 75% 59%)" stop-opacity="0.5" />
-      <stop offset="80%" stop-color="hsl(189 85% 35%)" stop-opacity="0.5" />
-      <stop offset="100%" stop-color="hsl(189 85% 35%)" stop-opacity="0" />
+      <stop offset="0%" stop-color="hsl(2 58% 46%)" stop-opacity="0" />
+      <stop offset="20%" stop-color="hsl(2 58% 46%)" stop-opacity="0.5" />
+      <stop offset="80%" stop-color="hsl(177 100% 24%)" stop-opacity="0.5" />
+      <stop offset="100%" stop-color="hsl(177 100% 24%)" stop-opacity="0" />
     </linearGradient>
   </defs>
 
@@ -26,7 +26,7 @@
   <!-- large watermark phone-call glyph, bottom-left, mostly off-canvas -->
   <g transform="translate(-60,620) rotate(-8)" opacity="0.05">
     <path d="M40 40c0-11 9-20 20-20h60c8 0 15 5 18 13l14 35c3 8 1 17-6 22l-24 18c17 40 48 71 88 88l18-24c5-7 14-9 22-6l35 14c8 3 13 10 13 18v60c0 11-9 20-20 20-121 0-238-96-238-238z"
-      fill="hsl(243 75% 59%)" stroke="none" transform="scale(2.6)" />
+      fill="hsl(2 58% 46%)" stroke="none" transform="scale(2.6)" />
   </g>
 
   <!-- voice waveform band -->
@@ -69,7 +69,7 @@
   </g>
 
   <!-- sparse network / AI node dots, connected by thin lines -->
-  <g opacity="0.16" stroke="hsl(243 75% 59%)" stroke-width="1.5" fill="hsl(189 85% 35%)">
+  <g opacity="0.16" stroke="hsl(2 58% 46%)" stroke-width="1.5" fill="hsl(177 100% 24%)">
     <line x1="150" y1="760" x2="330" y2="700" />
     <line x1="330" y1="700" x2="470" y2="800" />
     <line x1="330" y1="700" x2="360" y2="560" />

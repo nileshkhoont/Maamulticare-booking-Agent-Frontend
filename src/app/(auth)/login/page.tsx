@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense } from "react";
-import { PhoneCall } from "lucide-react";
+import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -53,8 +53,8 @@ function LoginForm() {
   return (
     <Card className="w-full max-w-sm shadow-lg">
       <CardHeader className="items-center pb-2 pt-6 text-center">
-        <div className="mb-1 flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-accent/70 text-accent-foreground shadow-sm">
-          <PhoneCall size={18} />
+        <div className="mb-2 flex h-24 w-24 items-center justify-center overflow-hidden rounded-xl border border-border bg-white shadow-sm">
+          <Image src="/assets/logo-mark.png" alt="" width={96} height={96} className="h-full w-full object-cover" priority />
         </div>
         <CardTitle className="text-base text-foreground">{siteConfig.name}</CardTitle>
         <p className="text-xs text-muted-foreground">Admin sign in</p>
