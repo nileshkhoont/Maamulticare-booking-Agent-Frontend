@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ChevronLeft, PhoneCall } from "lucide-react";
-import { siteConfig } from "@/config/site";
+import Image from "next/image";
+import { ChevronLeft } from "lucide-react";
 import { NavLinks } from "@/components/layout/nav-links";
 import { SidebarFooter } from "@/components/layout/sidebar-footer";
 import { cn } from "@/lib/utils";
@@ -41,17 +41,17 @@ export function Sidebar() {
     <aside
       className={cn(
         "hidden shrink-0 flex-col border-r border-border bg-card transition-[width] duration-200 md:flex",
-        collapsed ? "w-[4.5rem]" : "w-64",
+        collapsed ? "w-[4.5rem]" : "w-72",
       )}
     >
-      <div className={cn("flex h-14 items-center border-b border-border", collapsed ? "justify-center px-2" : "gap-2 px-3")}>
+      <div className={cn("flex h-24 items-center border-b border-border", collapsed ? "justify-center px-2" : "gap-2.5 px-3")}>
         {!collapsed && (
           <>
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-accent/70 text-accent-foreground shadow-sm">
-              <PhoneCall size={16} />
+            <div className="flex h-[4.5rem] w-[4.5rem] shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-white shadow-sm">
+              <Image src="/assets/logo-mark.png" alt="" width={72} height={72} className="h-full w-full object-cover" priority />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold leading-tight tracking-tight">{siteConfig.name}</p>
+              <p className="truncate text-sm font-semibold leading-tight tracking-tight">Maa MultiCare Hospital</p>
               <p className="truncate text-xs leading-tight text-muted-foreground">Admin Portal</p>
             </div>
           </>

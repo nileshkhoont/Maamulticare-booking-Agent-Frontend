@@ -11,23 +11,26 @@
   --muted-foreground: 215 16% 43%;
   --border: 214 26% 89%;
   --input-border: 214 26% 85%;
-  /* Primary — the brand color: solid buttons, the active pagination pill, the logo mark, avatar
-     chips. A confident indigo/violet instead of the previous near-black, which was the single
-     biggest reason the whole app read as grayscale — nearly every solid button and highlighted
-     element pulls from this one token. */
-  --primary: 243 75% 59%;
+  /* Primary — Maa MultiCare Hospital's actual brand red, taken from maamulticarehospital.com's
+     own CSS (#BB3732, used site-wide for its buttons/links/icons — not a guess or a sampled
+     screenshot pixel). Solid buttons, the active pagination pill, the logo badge border, avatar
+     chips all pull from this one token. 5.67:1 contrast with white text — passes WCAG AA as-is. */
+  --primary: 2 58% 46%;
   --primary-foreground: 0 0% 100%;
   /* Accent — same hue family as primary on purpose (kept as its own token, not literally merged,
      so it can be retuned independently later): links, the active nav-item highlight, input/
      select focus rings, and the day-toggle "selected" pills all read as the one coherent brand
-     blue rather than three slightly-mismatched blues. */
-  --accent: 243 75% 59%;
+     red rather than several slightly-mismatched reds. */
+  --accent: 2 58% 46%;
   --accent-foreground: 0 0% 100%;
-  /* Secondary — the second, genuinely distinct brand color: a rich teal, paired with primary's
-     indigo for the logo/avatar gradient and for deliberate variety elsewhere (a couple of
-     Overview stat-tile icons, the secondary Badge/Button variants) — never used so widely that
-     it starts competing with primary for attention. */
-  --secondary: 189 85% 35%;
+  /* Secondary — the hospital's other real brand color: the teal from the peacock feather in the
+     logo itself (sampled directly from the logo file, ~#00A8A0). Darkened from that raw sample
+     (33%->24% lightness, same hue/saturation) so white button/badge text on top of it clears
+     WCAG AA (5.20:1) — the raw logo teal only manages 2.95:1, which fails. Paired with primary
+     for the logo/avatar gradient and for deliberate variety elsewhere (a couple of Overview
+     stat-tile icons, the secondary Badge/Button variants) — never used so widely that it starts
+     competing with primary for attention. */
+  --secondary: 177 100% 24%;
   --secondary-foreground: 0 0% 100%;
   --success: 142 71% 29%;
   --success-bg: 142 65% 90%;
@@ -36,7 +39,7 @@
   --destructive: 0 72% 51%;
   --destructive-bg: 0 85% 92%;
   --destructive-foreground: 210 40% 98%;
-  --ring: 243 75% 59%;
+  --ring: 2 58% 46%;
   --radius: 0.625rem;
   --shadow-color: 222 47% 11%;
 }

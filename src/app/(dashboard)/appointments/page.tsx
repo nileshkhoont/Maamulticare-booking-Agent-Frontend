@@ -24,9 +24,11 @@ import { APPOINTMENT_STATUS_LABELS, BOOKING_SOURCE_LABELS } from "@/lib/constant
 import { formatDateTime, istDateInputEndOfDayToUtcIso, istDateInputToUtcIso, todayIstDateInput } from "@/lib/utils";
 import type { AppointmentStatus } from "@/types/enums";
 
-const STATUS_TONE: Record<AppointmentStatus, "success" | "accent" | "destructive" | "muted"> = {
+const STATUS_TONE: Record<AppointmentStatus, "success" | "destructive" | "muted"> = {
   booked: "success",
-  rescheduled: "accent",
+  // Same green as "booked" — both mean "there's a real upcoming appointment", just deliberately
+  // not distinguished by color; only "cancelled"/"no_show" (red) and "completed" (muted) differ.
+  rescheduled: "success",
   cancelled: "destructive",
   completed: "muted",
   no_show: "destructive",

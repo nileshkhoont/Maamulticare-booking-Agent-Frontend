@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { LogOut } from "lucide-react";
 import { useCurrentAdmin } from "@/features/auth/hooks";
 import { clearTokens } from "@/lib/auth";
@@ -60,6 +61,20 @@ export function SidebarFooter({ collapsed = false }: { collapsed?: boolean }) {
           <LogOut size={16} />
         </button>
       )}
+      <a
+        href="https://www.movya.com/"
+        target="_blank"
+        rel="noopener noreferrer"
+        title="Powered by Movya"
+        className="mt-1 flex items-center justify-center gap-2 rounded-md p-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+      >
+        <Image src="/assets/movya-mark.png" alt="" width={20} height={20} className="shrink-0 rounded-full" />
+        {!collapsed && (
+          <span>
+            Powered by <span className="font-semibold">Movya</span>
+          </span>
+        )}
+      </a>
     </div>
   );
 }

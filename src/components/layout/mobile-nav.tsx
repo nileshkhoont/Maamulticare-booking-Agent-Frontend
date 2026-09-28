@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import { PhoneCall, X } from "lucide-react";
+import Image from "next/image";
+import { X } from "lucide-react";
 import { siteConfig } from "@/config/site";
 import { NavLinks } from "@/components/layout/nav-links";
 import { SidebarFooter } from "@/components/layout/sidebar-footer";
@@ -39,10 +40,10 @@ export function MobileNav({ open, onClose }: { open: boolean; onClose: () => voi
         aria-modal="true"
         aria-label="Navigation"
       >
-        <div className="flex h-14 items-center justify-between gap-2 border-b border-border px-4">
-          <div className="flex min-w-0 items-center gap-2">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-accent to-accent/70 text-accent-foreground shadow-sm">
-              <PhoneCall size={16} />
+        <div className="flex h-20 items-center justify-between gap-2 border-b border-border px-4">
+          <div className="flex min-w-0 items-center gap-2.5">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-white shadow-sm">
+              <Image src="/assets/logo-mark.png" alt="" width={56} height={56} className="h-full w-full object-cover" />
             </div>
             <p className="truncate text-sm font-semibold tracking-tight">{siteConfig.name}</p>
           </div>

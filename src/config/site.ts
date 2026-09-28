@@ -9,8 +9,8 @@ import {
 } from "lucide-react";
 
 export const siteConfig = {
-  name: "AI Calling Agent",
-  description: "Admin dashboard for the AI Calling Agent — calls, appointments, and scheduling.",
+  name: "Maa MultiCare Hospital",
+  description: "Admin dashboard for Maa MultiCare Hospital's AI calling agent — calls, appointments, and scheduling.",
   nav: [
     { title: "Overview", href: "/", icon: LayoutDashboard },
     { title: "Calls", href: "/calls", icon: Phone },

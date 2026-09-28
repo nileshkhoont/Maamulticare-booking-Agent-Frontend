@@ -21,5 +21,9 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|assets).*)"],
+  // icon.png / apple-icon.png are Next's App Router icon-convention routes (src/app/icon.png,
+  // apple-icon.png) — browsers/OS request them unauthenticated (tab icon, iOS home-screen icon),
+  // same reason favicon.ico is excluded below. Missing this meant both were silently redirected
+  // to /login and served the login page's HTML instead of the actual icon.
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|icon.png|apple-icon.png|assets).*)"],
 };
