@@ -3,28 +3,38 @@
 import { Dialog } from "@/components/ui/dialog";
 import { LoadingSpinner } from "@/components/common/loading-spinner";
 import { ErrorBanner } from "@/components/common/error-banner";
+import { Badge } from "@/components/ui/badge";
 import { CallStatusBadge } from "@/components/calls/call-status-badge";
 import { TranscriptViewer } from "@/components/calls/transcript-viewer";
 import { RecordingPlayer } from "@/components/calls/recording-player";
 import { useCall } from "@/features/calls/hooks";
 import { usePerson } from "@/features/persons/hooks";
-import { CALL_OUTCOME_LABELS, CALL_TYPE_LABELS } from "@/lib/constants";
+import { APPOINTMENT_STATUS_LABELS, APPOINTMENT_STATUS_TONE, CALL_OUTCOME_LABELS, CALL_TYPE_LABELS } from "@/lib/constants";
 import { formatDateTime, formatDuration } from "@/lib/utils";
+import type { Appointment } from "@/features/appointments/types";
 
 /**
  * Shared "View more" detail panel for both the Calls and Appointments tables — opened from
  * either a call's own id, or an appointment's created_by_call_id. A modal (not a page link) so
  * neither table's filters/pagination (plain useState, not URL-synced) get lost by navigating
  * away and back.
+ *
+ * `appointment` is passed in only when opened from the Appointments table — it's the exact same
+ * row object already loaded there (guaranteed to match the table column, no separate fetch).
+ * When present, its date & time and status show as their own rows in the details grid, right
+ * after Person. Opened from the Calls table, `appointment` is omitted and neither row appears —
+ * appointment info was explicitly asked to be Appointments-context only.
  */
 export function CallDetailModal({
   callId,
   open,
   onClose,
+  appointment,
 }: {
   callId: string | null | undefined;
   open: boolean;
   onClose: () => void;
+  appointment?: Appointment;
 }) {
   const { data: call, isLoading, isError } = useCall(open && callId ? callId : undefined);
   const { data: person } = usePerson(call?.person_id);
@@ -43,7 +53,10 @@ export function CallDetailModal({
       {callId && call && (
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
-            <p className="text-base font-medium">{formatDateTime(call.start_time ?? call.created_at)}</p>
+            <div>
+              <p className="text-xs text-muted-foreground">Call date &amp; time</p>
+              <p className="text-base font-medium">{formatDateTime(call.start_time ?? call.created_at)}</p>
+            </div>
             <CallStatusBadge status={call.call_status} />
           </div>
 
@@ -58,22 +71,28 @@ export function CallDetailModal({
                 "—"
               )}
             </dd>
+            {appointment && (
+              <>
+                <dt className="text-muted-foreground">Appointment date &amp; time</dt>
+                <dd>
+                  <a href={`/appointments/${appointment.id}`} className="hover:underline">
+                    {formatDateTime(appointment.appointment_datetime)}
+                  </a>
+                </dd>
+                <dt className="text-muted-foreground">Appointment status</dt>
+                <dd>
+                  <Badge tone={APPOINTMENT_STATUS_TONE[appointment.status]}>
+                    {APPOINTMENT_STATUS_LABELS[appointment.status]}
+                  </Badge>
+                </dd>
+              </>
+            )}
             <dt className="text-muted-foreground">Call type</dt>
             <dd>{CALL_TYPE_LABELS[call.call_type]}</dd>
             <dt className="text-muted-foreground">Outcome</dt>
             <dd>{call.outcome ? CALL_OUTCOME_LABELS[call.outcome] : "—"}</dd>
             <dt className="text-muted-foreground">Duration</dt>
             <dd>{formatDuration(call.duration_seconds)}</dd>
-            {call.appointment_id && (
-              <>
-                <dt className="text-muted-foreground">Appointment</dt>
-                <dd>
-                  <a href={`/appointments/${call.appointment_id}`} className="hover:underline">
-                    View appointment
-                  </a>
-                </dd>
-              </>
-            )}
           </dl>
 
           <div>

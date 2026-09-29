@@ -1,3 +1,5 @@
+import type { AppointmentStatus } from "@/types/enums";
+
 const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 if (!apiBaseUrl) {
   throw new Error(
@@ -33,6 +35,18 @@ export const APPOINTMENT_STATUS_LABELS: Record<string, string> = {
   cancelled: "Cancelled",
   completed: "Completed",
   no_show: "No Show",
+};
+
+// Shared with the Appointments table (that's where this tone scheme was defined first) and the
+// Call details modal's Appointments-context view, so both render the same status the same color.
+export const APPOINTMENT_STATUS_TONE: Record<AppointmentStatus, "success" | "destructive" | "muted"> = {
+  booked: "success",
+  // Same green as "booked" — both mean "there's a real upcoming appointment", just deliberately
+  // not distinguished by color; only "cancelled"/"no_show" (red) and "completed" (muted) differ.
+  rescheduled: "success",
+  cancelled: "destructive",
+  completed: "muted",
+  no_show: "destructive",
 };
 
 export const BOOKING_SOURCE_LABELS: Record<string, string> = {
