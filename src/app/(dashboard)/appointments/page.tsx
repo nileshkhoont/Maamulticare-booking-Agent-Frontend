@@ -20,19 +20,10 @@ import { CallDetailModal } from "@/components/calls/call-detail-modal";
 import { CallDirectionLabel } from "@/components/common/call-direction-label";
 import { useAppointments } from "@/features/appointments/hooks";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
-import { APPOINTMENT_STATUS_LABELS, BOOKING_SOURCE_LABELS } from "@/lib/constants";
+import { APPOINTMENT_STATUS_LABELS, APPOINTMENT_STATUS_TONE, BOOKING_SOURCE_LABELS } from "@/lib/constants";
 import { formatDateTime, istDateInputEndOfDayToUtcIso, istDateInputToUtcIso, todayIstDateInput } from "@/lib/utils";
 import type { AppointmentStatus } from "@/types/enums";
-
-const STATUS_TONE: Record<AppointmentStatus, "success" | "destructive" | "muted"> = {
-  booked: "success",
-  // Same green as "booked" — both mean "there's a real upcoming appointment", just deliberately
-  // not distinguished by color; only "cancelled"/"no_show" (red) and "completed" (muted) differ.
-  rescheduled: "success",
-  cancelled: "destructive",
-  completed: "muted",
-  no_show: "destructive",
-};
+import type { Appointment } from "@/features/appointments/types";
 
 interface AppointmentFilters {
   status: AppointmentStatus | "";
@@ -59,6 +50,10 @@ export default function AppointmentsPage() {
   const [filterOpen, setFilterOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [viewCallId, setViewCallId] = useState<string | null | undefined>(undefined);
+  // The exact row object the "View more" button was clicked on — passed straight into the modal
+  // so its header shows the same appointment date & time already on screen, rather than a
+  // separate fetch that could theoretically race/differ.
+  const [viewAppointment, setViewAppointment] = useState<Appointment | null>(null);
   const debouncedSearch = useDebouncedValue(search);
 
   const { data, isLoading, isError } = useAppointments({
@@ -121,7 +116,7 @@ export default function AppointmentsPage() {
           <Table fillHeight bare>
             <TableHeader>
               <TableRow>
-                <TableHead>Date &amp; time</TableHead>
+                <TableHead>Appointment Date &amp; time</TableHead>
                 <TableHead>Person</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Source</TableHead>
@@ -149,7 +144,7 @@ export default function AppointmentsPage() {
                     )}
                   </TableCell>
                   <TableCell>
-                    <Badge tone={STATUS_TONE[appointment.status]}>
+                    <Badge tone={APPOINTMENT_STATUS_TONE[appointment.status]}>
                       {APPOINTMENT_STATUS_LABELS[appointment.status]}
                     </Badge>
                   </TableCell>
@@ -163,7 +158,10 @@ export default function AppointmentsPage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setViewCallId(appointment.created_by_call_id ?? null)}
+                      onClick={() => {
+                        setViewCallId(appointment.created_by_call_id ?? null);
+                        setViewAppointment(appointment);
+                      }}
                     >
                       View more
                     </Button>
@@ -181,7 +179,11 @@ export default function AppointmentsPage() {
       <CallDetailModal
         callId={viewCallId}
         open={viewCallId !== undefined}
-        onClose={() => setViewCallId(undefined)}
+        onClose={() => {
+          setViewCallId(undefined);
+          setViewAppointment(null);
+        }}
+        appointment={viewAppointment ?? undefined}
       />
 
       <FilterDialog
