@@ -40,6 +40,8 @@ const config: Config = {
           bg: "hsl(var(--destructive-bg))",
           foreground: "hsl(var(--destructive-foreground))",
         },
+        "call-outgoing": "hsl(var(--call-outgoing))",
+        "call-incoming": "hsl(var(--call-incoming))",
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",

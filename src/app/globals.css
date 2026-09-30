@@ -39,6 +39,15 @@
   --destructive: 0 72% 51%;
   --destructive-bg: 0 85% 92%;
   --destructive-foreground: 210 40% 98%;
+  /* Call direction icon colors — green for outgoing, blue for incoming (confirmed with the user;
+     the arrow shapes themselves point this way: lucide's PhoneOutgoing arrow points up-and-away
+     from the handset, PhoneIncoming's points down-and-into it). Dedicated tokens, not primary/
+     accent red (reads as "missed call" by phone-app convention and collides with the "Cancelled"
+     status badge in the same row) and not the existing --success green (142° hue, teal-leaning —
+     would collide with "Booked"/"Rescheduled"; this is 90°, a visibly different yellow-green).
+     Lightness tuned down from a brighter reference until contrast cleared ~3:1 on white. */
+  --call-outgoing: 90 60% 36%;
+  --call-incoming: 199 89% 40%;
   --ring: 2 58% 46%;
   --radius: 0.625rem;
   --shadow-color: 222 47% 11%;
