@@ -72,6 +72,13 @@ export default function BusinessConfigSettingsPage() {
 
   return (
     <div className="max-w-xl">
+      {/* This whole page is under testing — editing is switched off (see the disabled `Save`
+         button and controls below); remove this banner and the `disabled` props together once it
+         should accept updates again. */}
+      <div className="mb-4 rounded-md border border-warning/30 bg-warning-bg px-4 py-3 text-sm text-warning">
+        Please contact the admin to update business configuration.
+      </div>
+
       <p className="mb-6 text-sm text-muted-foreground">
         Drives every slot-availability check — for the admin dashboard and the AI agent alike.
       </p>
@@ -91,10 +98,11 @@ export default function BusinessConfigSettingsPage() {
               <button
                 key={day}
                 type="button"
+                disabled
                 onClick={() => toggleDay(day)}
                 aria-pressed={workingDays.includes(day)}
                 className={cn(
-                  "rounded-full border px-3 py-1 text-xs font-medium capitalize transition-colors",
+                  "rounded-full border px-3 py-1 text-xs font-medium capitalize transition-colors disabled:cursor-not-allowed disabled:opacity-60",
                   workingDays.includes(day)
                     ? "border-accent bg-accent text-accent-foreground"
                     : "border-border bg-transparent text-muted-foreground hover:border-accent/40 hover:text-foreground",
@@ -119,7 +127,7 @@ export default function BusinessConfigSettingsPage() {
         <div>
           <div className="flex flex-wrap items-center justify-between gap-2">
             <Label>Time windows</Label>
-            <Button type="button" variant="outline" size="sm" onClick={addWindow}>
+            <Button type="button" variant="outline" size="sm" disabled onClick={addWindow}>
               + Add time window
             </Button>
           </div>
@@ -156,6 +164,7 @@ export default function BusinessConfigSettingsPage() {
                         variant="outline"
                         size="sm"
                         className="mb-0.5"
+                        disabled
                         onClick={() => removeWindow(index)}
                       >
                         Remove
