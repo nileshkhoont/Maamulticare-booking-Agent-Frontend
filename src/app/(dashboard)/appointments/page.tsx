@@ -40,11 +40,13 @@ function countActiveFilters(filters: AppointmentFilters) {
 
 export default function AppointmentsPage() {
   const [search, setSearch] = useState("");
-  // Opens on today's appointments (IST) so the admin lands straight on today's agenda; the date
-  // filter can be widened or cleared to see everything.
+  // Opens on everything up to and including today (IST) — no "from" floor — so the admin lands
+  // on today's agenda plus the full backlog of anything earlier, rather than only today's exact
+  // date. The date filter can still be narrowed (e.g. a specific "from" date) or cleared entirely
+  // via the Filter dialog.
   const [filters, setFilters] = useState<AppointmentFilters>(() => {
     const today = todayIstDateInput();
-    return { ...EMPTY_FILTERS, dateFrom: today, dateTo: today };
+    return { ...EMPTY_FILTERS, dateTo: today };
   });
   const [draft, setDraft] = useState<AppointmentFilters>(EMPTY_FILTERS);
   const [filterOpen, setFilterOpen] = useState(false);
