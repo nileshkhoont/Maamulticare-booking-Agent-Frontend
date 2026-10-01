@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState, type KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
 import { CheckCircle2, Loader2, XCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,6 +16,11 @@ import { useCreateCallSchedule } from "@/features/schedule/hooks";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { cn, formatDateTime, istLocalInputToUtcIso } from "@/lib/utils";
 import { ApiError } from "@/lib/api-client";
+import type { Person } from "@/features/persons/types";
+
+function personLabel(person: Person): string {
+  return person.full_name ? `${person.full_name} (${person.phone_number})` : person.phone_number;
+}
 
 // Temporarily hidden — flip to true to bring back the "link to an existing booked appointment" field.
 const SHOW_APPOINTMENT_LINK = false;
@@ -41,10 +46,16 @@ export function ScheduleCallForm({ initialPersonId }: { initialPersonId?: string
   const router = useRouter();
   const [mode, setMode] = useState<PersonMode>("existing");
 
-  // "Select from list" mode
+  // "Select from list" mode — a combobox (text input + live-filtered dropdown list) rather than
+  // a plain search box + separate native <select>: a native <select>'s own keyboard typeahead
+  // only matches an option's text from its start, which is the person's *name* — typing a phone
+  // number could never jump to anything. This combobox instead re-filters via the search API
+  // (name OR phone, see person_repository.py's _name_or_phone_filter) on every keystroke.
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedValue(search);
   const [personId, setPersonId] = useState(initialPersonId ?? "");
+  const [comboOpen, setComboOpen] = useState(false);
+  const [highlightedIndex, setHighlightedIndex] = useState(0);
 
   // "Add new person" mode
   const [newName, setNewName] = useState("");
@@ -57,7 +68,10 @@ export function ScheduleCallForm({ initialPersonId }: { initialPersonId?: string
   const [scheduledAt, setScheduledAt] = useState("");
   const [notes, setNotes] = useState("");
 
-  const { data: personResults } = usePersons({ q: debouncedSearch || undefined, page: 1, page_size: 10 });
+  // page_size 200 is the backend's own max (schemas/common.py) — effectively "all persons" for
+  // this dropdown, rather than the old page_size 10 that silently hid everyone past the 10th
+  // result. The native <select> below scrolls on its own once it has this many <option>s.
+  const { data: personResults } = usePersons({ q: debouncedSearch || undefined, page: 1, page_size: 200 });
   // A pre-selected person (from a missed call's "Re-schedule") may not be in the first page of
   // search results, so it's fetched on its own and shown as an option regardless.
   const { data: preselectedPerson } = usePerson(initialPersonId);
@@ -67,6 +81,17 @@ export function ScheduleCallForm({ initialPersonId }: { initialPersonId?: string
       : []),
     ...(personResults?.items ?? []),
   ];
+  // The old native <select> showed the right label purely from `value={personId}` matching an
+  // <option>, independent of the search box's own text. The combobox's input IS the display now,
+  // so without this it would show blank on the "Re-schedule" flow despite personId already being
+  // set. Only fires once, when the preselected person first loads and the box is still empty.
+  useEffect(() => {
+    if (preselectedPerson && personId === preselectedPerson.id && !search) {
+      setSearch(personLabel(preselectedPerson));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [preselectedPerson]);
+
   const { data: bookableAppointments } = useBookableAppointments(personId || undefined);
   const phoneLookup = usePersonByPhone(mode === "new" ? (debouncedPhone ?? undefined) : undefined);
   const createPerson = useCreatePerson();
@@ -91,7 +116,36 @@ export function ScheduleCallForm({ initialPersonId }: { initialPersonId?: string
   function selectExistingPerson(id: string, phone: string) {
     setPersonId(id);
     setSearch(phone);
+    setComboOpen(false);
     switchMode("existing");
+  }
+
+  function selectPerson(person: Person) {
+    setPersonId(person.id);
+    setSearch(personLabel(person));
+    setAppointmentId("");
+    setComboOpen(false);
+  }
+
+  function handleComboKeyDown(e: KeyboardEvent<HTMLInputElement>) {
+    if (!comboOpen && (e.key === "ArrowDown" || e.key === "ArrowUp")) {
+      setComboOpen(true);
+      return;
+    }
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setHighlightedIndex((i) => Math.min(i + 1, personOptions.length - 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setHighlightedIndex((i) => Math.max(i - 1, 0));
+    } else if (e.key === "Enter") {
+      if (comboOpen && personOptions[highlightedIndex]) {
+        e.preventDefault();
+        selectPerson(personOptions[highlightedIndex]);
+      }
+    } else if (e.key === "Escape") {
+      setComboOpen(false);
+    }
   }
 
   async function handleSubmit() {
@@ -168,27 +222,55 @@ export function ScheduleCallForm({ initialPersonId }: { initialPersonId?: string
         </div>
 
         {mode === "existing" ? (
-          <div className="flex flex-col gap-1.5">
+          <div className="relative flex flex-col gap-1.5">
             <Input
               placeholder="Search by name or phone number"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              role="combobox"
+              aria-expanded={comboOpen}
+              aria-controls="schedule-person-listbox"
+              autoComplete="off"
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPersonId("");
+                setAppointmentId("");
+                setHighlightedIndex(0);
+                setComboOpen(true);
+              }}
+              onFocus={() => setComboOpen(true)}
+              // Delayed so a click on an option (onMouseDown below) registers before the list
+              // unmounts — blur fires first, and an immediate close would eat the click.
+              onBlur={() => setTimeout(() => setComboOpen(false), 150)}
+              onKeyDown={handleComboKeyDown}
             />
-            {personOptions.length > 0 && (
-              <Select
-                value={personId}
-                onChange={(e) => {
-                  setPersonId(e.target.value);
-                  setAppointmentId("");
-                }}
+            {comboOpen && (
+              <ul
+                id="schedule-person-listbox"
+                role="listbox"
+                className="absolute top-full z-10 mt-1 max-h-64 w-full overflow-y-auto rounded-md border border-border bg-card py-1 shadow-md"
               >
-                <option value="">Select a person…</option>
-                {personOptions.map((person) => (
-                  <option key={person.id} value={person.id}>
-                    {person.full_name ? `${person.full_name} (${person.phone_number})` : person.phone_number}
-                  </option>
+                {personOptions.length === 0 && (
+                  <li className="px-3 py-2 text-sm text-muted-foreground">No matching person</li>
+                )}
+                {personOptions.map((person, index) => (
+                  <li
+                    key={person.id}
+                    role="option"
+                    aria-selected={person.id === personId}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      selectPerson(person);
+                    }}
+                    onMouseEnter={() => setHighlightedIndex(index)}
+                    className={cn(
+                      "cursor-pointer px-3 py-1.5 text-sm",
+                      index === highlightedIndex ? "bg-accent text-accent-foreground" : "text-foreground hover:bg-muted",
+                    )}
+                  >
+                    {personLabel(person)}
+                  </li>
                 ))}
-              </Select>
+              </ul>
             )}
           </div>
         ) : (
