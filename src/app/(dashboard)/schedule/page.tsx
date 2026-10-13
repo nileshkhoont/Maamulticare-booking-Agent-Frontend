@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Plus, Search } from "lucide-react";
 import { buttonClasses } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
@@ -19,7 +20,7 @@ import { useCallSchedules } from "@/features/schedule/hooks";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { istDateInputEndOfDayToUtcIso, istDateInputToUtcIso } from "@/lib/utils";
 import { CALL_SCHEDULE_STATUS_LABELS } from "@/lib/constants";
-import type { CallScheduleStatus } from "@/types/enums";
+import type { CallPurpose, CallScheduleStatus } from "@/types/enums";
 
 interface QueueFilters {
   status: CallScheduleStatus | "";
@@ -30,14 +31,32 @@ interface QueueFilters {
 const EMPTY_FILTERS: QueueFilters = { status: "", dateFrom: "", dateTo: "" };
 
 // The date range counts as ONE active filter however many of its ends are set.
-function countActiveFilters(filters: QueueFilters) {
-  return (filters.status ? 1 : 0) + (filters.dateFrom || filters.dateTo ? 1 : 0);
+function countActiveFilters(filters: QueueFilters, callPurpose: CallPurpose | "") {
+  return (filters.status ? 1 : 0) + (filters.dateFrom || filters.dateTo ? 1 : 0) + (callPurpose ? 1 : 0);
 }
 
 export default function SchedulePage() {
+  return (
+    <Suspense fallback={<LoadingSpinner className="flex-1" />}>
+      <SchedulePageInner />
+    </Suspense>
+  );
+}
+
+function SchedulePageInner() {
+  const searchParams = useSearchParams();
   const [search, setSearch] = useState("");
   // Opens on the Missed queue, all dates — missed calls are historical, so no default date range.
-  const [filters, setFilters] = useState<QueueFilters>({ ...EMPTY_FILTERS, status: "missed" });
+  // Arriving from an Overview stat tile (`?status=` and/or `?call_purpose=`) overrides that
+  // default instead, so the admin sees every row behind the count they just clicked.
+  const queryStatus = searchParams.get("status") as CallScheduleStatus | null;
+  const queryCallPurpose = searchParams.get("call_purpose") as CallPurpose | null;
+  const [filters, setFilters] = useState<QueueFilters>(() =>
+    queryStatus || queryCallPurpose
+      ? { ...EMPTY_FILTERS, status: queryStatus ?? "" }
+      : { ...EMPTY_FILTERS, status: "missed" }
+  );
+  const [callPurpose, setCallPurpose] = useState<CallPurpose | "">(queryCallPurpose ?? "");
   const [draft, setDraft] = useState<QueueFilters>(EMPTY_FILTERS);
   const [filterOpen, setFilterOpen] = useState(false);
   const [page, setPage] = useState(1);
@@ -45,6 +64,7 @@ export default function SchedulePage() {
 
   const { data, isLoading, isError } = useCallSchedules({
     status: filters.status || undefined,
+    call_purpose: callPurpose || undefined,
     q: debouncedSearch || undefined,
     date_from: filters.dateFrom ? istDateInputToUtcIso(filters.dateFrom) : undefined,
     date_to: filters.dateTo ? istDateInputEndOfDayToUtcIso(filters.dateTo) : undefined,
@@ -59,6 +79,11 @@ export default function SchedulePage() {
 
   function applyFilters() {
     setFilters(draft);
+    // Not an editable dialog field — "Clear all" (which empties draft down to EMPTY_FILTERS)
+    // should still drop it, since it's a filter as far as the admin can tell.
+    if (draft.status === "" && !draft.dateFrom && !draft.dateTo) {
+      setCallPurpose("");
+    }
     setPage(1);
     setFilterOpen(false);
   }
@@ -87,7 +112,7 @@ export default function SchedulePage() {
                 className="pl-9"
               />
             </div>
-            <FilterButton activeCount={countActiveFilters(filters)} onClick={openFilters} />
+            <FilterButton activeCount={countActiveFilters(filters, callPurpose)} onClick={openFilters} />
           </>
         }
       >

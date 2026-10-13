@@ -31,7 +31,7 @@ export function AgentPromptEditor() {
   if (isError) {
     const message =
       error instanceof ApiError && error.status === 400
-        ? "The Edesy agent isn't configured yet — run scripts/bootstrap_edesy_agent.py on the backend once EDESY_API_KEY is set, then reload this page."
+        ? "The voice agent isn't configured yet — run scripts/bootstrap_edesy_agent.py on the backend once EDESY_API_KEY is set, then reload this page."
         : "Failed to load the voice agent configuration.";
     return <ErrorBanner message={message} />;
   }

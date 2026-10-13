@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Search } from "lucide-react";
 import { Select } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
@@ -39,14 +40,28 @@ function countActiveFilters(filters: AppointmentFilters) {
 }
 
 export default function AppointmentsPage() {
+  return (
+    <Suspense fallback={<LoadingSpinner className="flex-1" />}>
+      <AppointmentsPageInner />
+    </Suspense>
+  );
+}
+
+function AppointmentsPageInner() {
+  const searchParams = useSearchParams();
   const [search, setSearch] = useState("");
-  // Opens on everything up to and including today (IST) — no "from" floor — so the admin lands
-  // on today's agenda plus the full backlog of anything earlier, rather than only today's exact
-  // date. The date filter can still be narrowed (e.g. a specific "from" date) or cleared entirely
-  // via the Filter dialog.
+  // Opens on everything from today (IST) onward — no "to" ceiling — so the admin lands on
+  // today's agenda plus the full upcoming schedule, rather than only today's exact date. The
+  // date filter can still be narrowed (e.g. a specific "to" date) or cleared entirely via the
+  // Filter dialog. Exception: arriving with a `?status=` from an Overview stat tile means the
+  // admin wants to see every matching row behind that (all-time) count, so no date default.
   const [filters, setFilters] = useState<AppointmentFilters>(() => {
+    const statusParam = searchParams.get("status") as AppointmentStatus | null;
+    if (statusParam) {
+      return { ...EMPTY_FILTERS, status: statusParam };
+    }
     const today = todayIstDateInput();
-    return { ...EMPTY_FILTERS, dateTo: today };
+    return { ...EMPTY_FILTERS, dateFrom: today };
   });
   const [draft, setDraft] = useState<AppointmentFilters>(EMPTY_FILTERS);
   const [filterOpen, setFilterOpen] = useState(false);
