@@ -5,8 +5,8 @@ export default function VoiceAgentSettingsPage() {
   return (
     <div>
       <p className="mb-6 max-w-2xl text-sm text-muted-foreground">
-        Edits here update the Edesy AI Voice Agent directly (prompt, greeting, language) — never
-        holds an Edesy API key in the browser; this page talks only to this backend.
+        Edits here update the Movya AI Voice Agent directly (prompt, greeting, language) — never
+        holds a voice agent API key in the browser; this page talks only to this backend.
       </p>
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
         <AgentPromptEditor />

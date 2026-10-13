@@ -1,5 +1,6 @@
 export interface DashboardStats {
   booked_appointments: number;
+  rescheduled_appointments: number;
   cancelled_appointments: number;
   inbound_calls: number;
   outbound_calls: number;

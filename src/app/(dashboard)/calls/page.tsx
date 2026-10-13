@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Search } from "lucide-react";
 import { Select } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
@@ -39,8 +40,22 @@ function countActiveFilters(filters: CallFilters) {
 }
 
 export default function CallsPage() {
+  return (
+    <Suspense fallback={<LoadingSpinner className="flex-1" />}>
+      <CallsPageInner />
+    </Suspense>
+  );
+}
+
+function CallsPageInner() {
+  const searchParams = useSearchParams();
   const [search, setSearch] = useState("");
-  const [filters, setFilters] = useState<CallFilters>(EMPTY_CALL_FILTERS);
+  // Arriving with a `?call_type=` from an Overview stat tile pre-selects that call type, matching
+  // the all-time count the admin just clicked (no date default to narrow it back down).
+  const [filters, setFilters] = useState<CallFilters>(() => {
+    const callType = searchParams.get("call_type") as CallType | null;
+    return callType ? { ...EMPTY_CALL_FILTERS, callType } : EMPTY_CALL_FILTERS;
+  });
   const [draft, setDraft] = useState<CallFilters>(EMPTY_CALL_FILTERS);
   const [filterOpen, setFilterOpen] = useState(false);
   const [page, setPage] = useState(1);
