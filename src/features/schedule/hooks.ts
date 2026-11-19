@@ -27,6 +27,8 @@ export function useCancelCallSchedule() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => scheduleApi.cancel(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["call-schedules"] }),
+    // Refresh on failure too: a refused cancel (409 — the call already started or finished) means
+    // the row on screen was out of date, so the list is re-fetched to show its real status.
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ["call-schedules"] }),
   });
 }

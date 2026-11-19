@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonClasses } from "@/components/ui/button";
 import { useCancelCallSchedule } from "@/features/schedule/hooks";
+import { ApiError } from "@/lib/api-client";
 import { CALL_PURPOSE_LABELS, CALL_SCHEDULE_STATUS_LABELS } from "@/lib/constants";
 import { formatDateTime } from "@/lib/utils";
 import type { CallSchedule } from "@/features/schedule/types";
@@ -85,6 +86,11 @@ export function QueueTable({
                 >
                   <RotateCcw size={14} /> Re-schedule
                 </Link>
+              )}
+              {cancelSchedule.isError && cancelSchedule.variables === schedule.id && (
+                <p className="mt-1 text-xs text-destructive">
+                  {cancelSchedule.error instanceof ApiError ? cancelSchedule.error.message : "Failed to cancel this call"}
+                </p>
               )}
             </TableCell>
           </TableRow>
