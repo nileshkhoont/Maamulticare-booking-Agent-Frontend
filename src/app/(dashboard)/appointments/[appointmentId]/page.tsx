@@ -11,6 +11,7 @@ import { ConfirmDialog } from "@/components/common/confirm-dialog";
 import { SlotPicker } from "@/components/appointments/slot-picker";
 import { useAppointment, useCancelAppointment, useRescheduleAppointment } from "@/features/appointments/hooks";
 import { usePerson } from "@/features/persons/hooks";
+import { ApiError } from "@/lib/api-client";
 import { APPOINTMENT_STATUS_LABELS } from "@/lib/constants";
 import { formatDateTime, istLocalInputToUtcIso } from "@/lib/utils";
 
@@ -54,6 +55,12 @@ export default function AppointmentDetailPage() {
           )}
 
           {appointment.notes && <p className="text-sm">{appointment.notes}</p>}
+
+          {cancel.isError && (
+            <ErrorBanner
+              message={cancel.error instanceof ApiError ? cancel.error.message : "Failed to cancel appointment"}
+            />
+          )}
 
           {appointment.original_appointment_id && (
             <p className="text-xs text-muted-foreground">
